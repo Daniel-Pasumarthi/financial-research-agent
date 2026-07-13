@@ -4,6 +4,7 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_openai import OpenAIEmbeddings
 from langchain_chroma import Chroma
 from dotenv import load_dotenv
+from bs4 import BeautifulSoup
 
 load_dotenv()
 
@@ -12,7 +13,10 @@ CHROMA_DIR = "data/chroma_db"
 def ingest_filing(filepath: str, ticker: str) -> None:
     """Load a 10-K, chunk it, embed it, store vectors in ChromaDB."""
     documents = TextLoader(filepath).load()
-
+    
+    for doc in documents:
+        doc.page_content = BeautifulSoup(doc.page_content, "html.parser").get_text(separator=" ", strip=True)
+        
     splitter = RecursiveCharacterTextSplitter(
         chunk_size=1000,
         chunk_overlap=200,

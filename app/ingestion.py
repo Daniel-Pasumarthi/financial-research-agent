@@ -1,5 +1,5 @@
 import os
-from langchain_community.document_loaders import TextLoader
+from langchain_core.documents import Document
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_openai import OpenAIEmbeddings
 from langchain_chroma import Chroma
@@ -12,11 +12,19 @@ CHROMA_DIR = "data/chroma_db"
 
 def ingest_filing(filepath: str, ticker: str) -> None:
     """Load a 10-K, chunk it, embed it, store vectors in ChromaDB."""
-    documents = TextLoader(filepath).load()
-    
+    with open(filepath, "r", encoding="utf-8") as f:
+        raw_text = f.read()
+
+    documents = [Document(page_content=raw_text, metadata={"source": filepath})]
+
     for doc in documents:
-        doc.page_content = BeautifulSoup(doc.page_content, "html.parser").get_text(separator=" ", strip=True)
+        soup = BeautifulSoup(doc.page_content, "html.parser")
         
+        for header_block in soup.find_all("ix:header"):
+            header_block.decompose()
+            
+        doc.page_content = soup.get_text(separator=" ", strip=True)
+
     splitter = RecursiveCharacterTextSplitter(
         chunk_size=1000,
         chunk_overlap=200,
@@ -39,4 +47,4 @@ def ingest_filing(filepath: str, ticker: str) -> None:
 
 
 if __name__ == "__main__":
-    ingest_filing("data/filings/AAPL_10K.txt", "AAPL")
+    ingest_filing("data/filings/AAPL_10K_primary.html", "AAPL")

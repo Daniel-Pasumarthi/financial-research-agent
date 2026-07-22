@@ -4,8 +4,6 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import streamlit as st
-from app.agent import build_agent
-from app.evaluation import evaluate_run
 from app.ingestion import ingest_filing, CHROMA_DIR
 
 def ensure_store_exists():
@@ -15,6 +13,9 @@ def ensure_store_exists():
             ingest_filing("data/filings/AAPL_10K_primary.html", "AAPL")
 
 ensure_store_exists()
+
+from app.agent import build_agent
+from app.evaluation import evaluate_run
 
 st.set_page_config(page_title="Financial Research Agent", layout="wide")
 st.title("Financial Research Agent")

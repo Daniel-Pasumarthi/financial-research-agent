@@ -20,7 +20,7 @@ def retrieve_node(state: AgentState) -> dict:
         from app.retriever_bedrock import retrieve_bedrock
         context = retrieve_bedrock(state["query"])
     else:
-        context = retrieve_custom(state["query"], top_n=4)
+        context = retrieve_custom(state["query"], ticker=state["ticker"], top_n=4)
     return {"context": context}
 
 

@@ -6,11 +6,22 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import streamlit as st
 from app.ingestion import ingest_filing, CHROMA_DIR
 
+FILINGS = {
+    "AAPL": "data/filings/AAPL_10K_primary.html",
+    "MSFT": "data/filings/MSFT_10K_primary.html",
+    "GOOGL": "data/filings/GOOGL_10K_primary.html",
+    "AMZN": "data/filings/AMZN_10K_primary.html",
+    "NVDA": "data/filings/NVDA_10K_primary.html",
+    "META": "data/filings/META_10K_primary.html",
+    "TSLA": "data/filings/TSLA_10K_primary.html",
+}
+
 def ensure_store_exists():
     """Build the Chroma store on first run if it doesn't exist yet (fresh clone/container)."""
     if not os.path.exists(CHROMA_DIR) or not os.listdir(CHROMA_DIR):
-        with st.spinner("First run: building vector store from filing..."):
-            ingest_filing("data/filings/AAPL_10K_primary.html", "AAPL")
+        with st.spinner("First run: building vector store from filings..."):
+            for ticker, filepath in FILINGS.items():
+                ingest_filing(filepath, ticker)
 
 ensure_store_exists()
 
@@ -26,7 +37,7 @@ def get_agent():
 
 agent = get_agent()
 
-ticker = st.text_input("Ticker", value="AAPL")
+ticker = st.selectbox("Ticker", list(FILINGS.keys()))
 query = st.text_area("Research question", value="What are the main revenue risks?")
 backend = st.radio("Retrieval backend", ["custom", "bedrock"], horizontal=True)
 

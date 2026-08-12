@@ -18,7 +18,7 @@ def retrieve_node(state: AgentState) -> dict:
     """Route to the chosen retrieval backend."""
     if state["retrieval_backend"] == "bedrock":
         from app.retriever_bedrock import retrieve_bedrock
-        context = retrieve_bedrock(state["query"])
+        context = retrieve_bedrock(state["query"], ticker=state["ticker"])
     else:
         context = retrieve_custom(state["query"], ticker=state["ticker"], top_n=4)
     return {"context": context}

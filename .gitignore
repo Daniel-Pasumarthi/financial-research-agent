@@ -18,3 +18,5 @@ data/chroma_db/
 sec-edgar-filings/
 
 .env.admin
+
+evaluation_results.smoke.json
